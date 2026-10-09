@@ -2,8 +2,18 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<!-- CSP : aucune ressource externe ; seuls le CSS/JS inline de ce fichier et le favicon en data: sont autorisés -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OSI &amp; TCP/IP — Comprendre les couches réseau</title>
+<meta name="description" content="Fiche de révision interactive sur les modèles OSI et TCP/IP : pile OSI cliquable, animation d'encapsulation, correspondance OSI / TCP-IP et quiz.">
+<meta name="theme-color" content="#0c1014">
+<meta property="og:type" content="website">
+<meta property="og:title" content="OSI &amp; TCP/IP — Comprendre les couches réseau">
+<meta property="og:description" content="Fiche de révision interactive : pile OSI cliquable, encapsulation animée, correspondance OSI / TCP-IP et quiz de 8 questions.">
+<meta property="og:url" content="https://anotherj4ck.github.io/osi-tcpip/">
+<meta property="og:locale" content="fr_FR">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230c1014'/%3E%3Crect x='6' y='5' width='20' height='4' rx='1.5' fill='%23e2685f'/%3E%3Crect x='6' y='11' width='20' height='4' rx='1.5' fill='%23f2a43a'/%3E%3Crect x='6' y='17' width='20' height='4' rx='1.5' fill='%233fc7c7'/%3E%3Crect x='6' y='23' width='20' height='4' rx='1.5' fill='%239b8cff'/%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#0c1014;
@@ -76,13 +86,16 @@
     background:var(--panel);border-radius:8px;padding:13px 16px;
     display:flex;align-items:center;gap:14px;
     transition:transform .15s ease,border-color .15s,background .15s;
+    /* reset du <button> : même rendu que l'ancien <div> */
+    width:100%;font:inherit;color:inherit;text-align:left;
   }
   .layer:hover{transform:translateX(5px);border-color:var(--clr)}
   .layer.active{background:var(--panel-2);border-color:var(--clr);transform:translateX(5px)}
+  .layer:focus-visible{outline:2px solid var(--clr);outline-offset:2px}
   .layer .ln{font-family:var(--mono);font-size:13px;color:var(--clr);font-weight:600;width:18px}
   .layer .body{flex:1}
-  .layer .name{font-weight:600;font-size:15px}
-  .layer .en{font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.04em}
+  .layer .name{display:block;font-weight:600;font-size:15px}
+  .layer .en{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.04em}
   .layer .dot{width:9px;height:9px;border-radius:50%;background:var(--clr);box-shadow:0 0 10px var(--clr)}
 
   .detail{
@@ -117,14 +130,14 @@
   button.btn:hover{border-color:var(--cyan);color:var(--cyan)}
   button.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#072024;font-weight:600}
   button.btn.primary:hover{background:#5ad6d6}
-  button.btn:disabled{opacity:.4;cursor:not-allowed}
+  button.btn:disabled,button.btn[aria-disabled="true"]{opacity:.4;cursor:not-allowed}
   .dir-label{font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-left:auto}
 
   .encap-stage{display:flex;flex-direction:column;gap:5px}
   .erow{display:flex;align-items:center;gap:14px}
   .erow .elabel{font-family:var(--mono);font-size:12px;color:var(--ink-faint);width:120px;text-align:right;flex-shrink:0}
   .erow .elabel b{color:var(--ink-dim);display:block;font-size:11px;font-weight:600}
-  .packet{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;
+  .packet{display:flex;flex-wrap:wrap;min-width:0;align-items:stretch;border-radius:6px;overflow:hidden;
     font-family:var(--mono);font-size:11px;min-height:34px;transition:opacity .4s,transform .4s}
   .seg{display:flex;align-items:center;justify-content:center;padding:0 10px;white-space:nowrap;
     color:#0a0f13;font-weight:600;opacity:0;transform:scale(.9);transition:opacity .35s,transform .35s}
@@ -140,6 +153,9 @@
     .erow .elabel{width:64px;font-size:10px}
     .estep-note{padding-left:78px}
   }
+  @media(max-width:400px){
+    .seg{padding:0 5px}
+  }
 
   /* ---------- transition block ---------- */
   .transition{background:linear-gradient(180deg,var(--panel),var(--panel-2));
@@ -152,15 +168,17 @@
 
   /* ---------- mapping table ---------- */
   .map{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);
-    border-radius:10px;overflow:hidden;margin-top:8px}
+    border-radius:10px;overflow:hidden;margin-top:24px}
   .map .col-head{padding:14px 18px;font-weight:700;font-size:15px;background:var(--panel-2);
     border-bottom:1px solid var(--line)}
   .map .col-head.osi{color:var(--cyan)} .map .col-head.tcp{color:var(--amber)}
   .map .cell{padding:13px 18px;border-bottom:1px solid var(--line);font-size:14px}
   .map .cell .pdu-mini{font-family:var(--mono);font-size:11px;color:var(--ink-faint);display:block}
   .map .osi-cell{border-right:1px solid var(--line);background:var(--panel)}
-  .map .tcp-cell{background:rgba(242,164,58,.04)}
-  .map .span2{display:flex;align-items:center;color:var(--ink-dim);font-style:italic;font-size:13px}
+  .map .tcp-cell{background:rgba(242,164,58,.04);display:flex;flex-direction:column;justify-content:center}
+  .map .rows-2{grid-row:span 2}
+  .map .rows-3{grid-row:span 3}
+  .map .last{border-bottom:none}
 
   /* ---------- quiz ---------- */
   .quiz{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px}
@@ -190,8 +208,23 @@
   .qresult .score{font-size:48px;font-weight:800;font-family:var(--mono);color:var(--cyan)}
   .qresult .msg{color:var(--ink-dim);margin:10px 0 20px}
 
+  .noscript{margin-top:24px;padding:14px 16px;border-radius:8px;background:var(--panel);
+    border:1px solid var(--line);border-left:3px solid var(--amber);font-size:14px;color:var(--ink-dim)}
+
   footer{padding:40px 0 64px;color:var(--ink-faint);font-family:var(--mono);font-size:12px}
   footer a{color:var(--cyan);text-decoration:none}
+  footer a:hover,footer a:focus-visible{text-decoration:underline}
+  footer .lic{margin-top:8px}
+  .legal{margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
+  .legal summary{cursor:pointer;color:var(--ink-dim);width:max-content;max-width:100%}
+  .legal summary:hover{color:var(--cyan)}
+  .legal .legal-body{margin-top:14px;font-family:var(--sans);font-size:13px;line-height:1.6;
+    color:var(--ink-dim);max-width:72ch}
+  .legal h3{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-faint);margin:16px 0 4px}
+  .legal h3:first-child{margin-top:0}
+  .legal address{font-style:normal}
+  .nowrap{white-space:nowrap}
 
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -203,10 +236,11 @@
 
 <header>
   <div class="wrap">
-    <div class="eyebrow">Réseau · TSSR · fondamentaux</div>
+    <div class="eyebrow">Réseau · TAI / TSSR · fondamentaux</div>
     <h1>Les couches réseau,<br><span class="alt">décortiquées.</span></h1>
     <p class="lede">Un paquet qui voyage d'une machine à l'autre traverse une pile de couches, chacune avec son rôle. On commence par le modèle de référence — OSI, 7 couches — puis on bascule vers ce qui fait réellement tourner Internet : TCP/IP.</p>
-    <div class="prompt"><span class="c">ajack@terra</span>:~$ traceroute --explain osi tcp-ip<span class="blink">▍</span></div>
+    <div class="prompt"><span class="c">anotherj4ck@lab</span>:~$ traceroute --explain osi tcp-ip<span class="blink">▍</span></div>
+    <noscript><p class="noscript">JavaScript est désactivé : la pile OSI interactive, l'animation d'encapsulation et le quiz ne peuvent pas s'afficher. Le texte et le tableau de correspondance OSI / TCP-IP restent lisibles.</p></noscript>
   </div>
 </header>
 
@@ -222,11 +256,11 @@
     </div>
 
     <div class="osi-grid">
-      <div class="stack" id="stack"></div>
-      <div class="detail" id="detail">
+      <div class="stack" id="stack" role="group" aria-label="Couches du modèle OSI"></div>
+      <div class="detail" id="detail" aria-live="polite">
         <div class="tag">Sélection</div>
         <h3>Choisis une couche</h3>
-        <p class="role">Le détail s'affiche ici. Astuce mnémotechnique (haut → bas) : <b>« Tout Plombier Surveille Tous Réseaux La Présentation Apprend »</b> ... ou en anglais : <i>All People Seem To Need Data Processing</i>.</p>
+        <p class="role">Le détail s'affiche ici. Astuce mnémotechnique (haut → bas, 7 → 1) : <b>« Après Plusieurs Semaines, Tout Respire La Paix »</b> — Application, Présentation, Session, Transport, Réseau, Liaison, Physique. En anglais : <i>All People Seem To Need Data Processing</i>.</p>
       </div>
     </div>
   </div>
@@ -251,7 +285,7 @@
         <span class="dir-label" id="dirlabel">Machine A → réseau</span>
       </div>
       <div class="encap-stage" id="estage"></div>
-      <div class="estep-note" id="enote">Données applicatives prêtes à descendre la pile.</div>
+      <div class="estep-note" id="enote" aria-live="polite">Données applicatives prêtes à descendre la pile.</div>
     </div>
   </div>
 </section>
@@ -268,37 +302,37 @@
     </div>
 
     <div class="transition">
-      <p>Le modèle OSI est une <strong>référence théorique</strong>. Il n'a jamais été déployé tel quel : aucun réseau réel ne tourne « en OSI ». Ce qui fait fonctionner Internet, tes VM en <span class="key">172.16.x.0/24</span>, ton routage inter-VLAN et chaque <span class="key">ping</span> que tu lances, c'est la pile <strong>TCP/IP</strong> — un modèle plus ancien, plus pragmatique, en 4 couches.</p>
-      <p>Mais attention au raccourci « OSI est dépassé » : c'est faux. OSI reste la <strong>grille de lecture commune</strong> de tout le métier. Quand un collègue dit « c'est un souci de niveau 2 », il parle d'un problème de commutation/MAC/VLAN (ton Cisco 2950). « Niveau 3 », c'est le routage et l'IP. « Niveau 7 », l'applicatif. Wireshark, les certifs CCNA, le dépannage : tout le monde raisonne en couches OSI.</p>
+      <p>Le modèle OSI est une <strong>référence théorique</strong>. Il n'a jamais été déployé tel quel : aucun réseau réel ne tourne « en OSI ». Ce qui fait fonctionner Internet, des VM sur un réseau privé (RFC 1918, ex. <span class="key">172.16.0.0/12</span>), le routage inter-VLAN et chaque <span class="key">ping</span> que tu lances, c'est la pile <strong>TCP/IP</strong> — un modèle plus ancien, plus pragmatique, en 4 couches.</p>
+      <p>Mais attention au raccourci « OSI est dépassé » : c'est faux. OSI reste la <strong>grille de lecture commune</strong> de tout le métier. Quand un collègue dit « c'est un souci de niveau 2 », il parle d'un problème de commutation/MAC/VLAN (un switch Cisco de lab). « Niveau 3 », c'est le routage et l'IP. « Niveau 7 », l'applicatif. Wireshark, les certifs CCNA, le dépannage : tout le monde raisonne en couches OSI.</p>
       <p>En clair : on apprend <strong>OSI pour comprendre et communiquer</strong>, on déploie <strong>TCP/IP pour faire tourner le réseau</strong>. Voici comment les deux se superposent.</p>
     </div>
 
-    <div class="map" style="margin-top:24px">
+    <div class="map">
       <div class="col-head osi">Modèle OSI — 7 couches</div>
       <div class="col-head tcp">Modèle TCP/IP — 4 couches</div>
 
       <div class="cell osi-cell">7 · Application<span class="pdu-mini">HTTP, DNS, SSH</span></div>
-      <div class="cell tcp-cell" style="grid-row:span 3;display:flex;flex-direction:column;justify-content:center">
+      <div class="cell tcp-cell rows-3">
         <div><b>Application</b></div><span class="pdu-mini">Regroupe les 3 couches hautes d'OSI</span>
       </div>
       <div class="cell osi-cell">6 · Présentation<span class="pdu-mini">TLS, chiffrement, formats</span></div>
       <div class="cell osi-cell">5 · Session<span class="pdu-mini">ouverture/maintien de session</span></div>
 
       <div class="cell osi-cell">4 · Transport<span class="pdu-mini">TCP, UDP — ports</span></div>
-      <div class="cell tcp-cell" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="cell tcp-cell">
         <div><b>Transport</b></div><span class="pdu-mini">TCP / UDP (identique)</span>
       </div>
 
       <div class="cell osi-cell">3 · Réseau<span class="pdu-mini">IP, routage, ICMP</span></div>
-      <div class="cell tcp-cell" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="cell tcp-cell">
         <div><b>Internet</b></div><span class="pdu-mini">IP, routage</span>
       </div>
 
-      <div class="cell osi-cell" style="border-bottom:none">2 · Liaison<span class="pdu-mini">Ethernet, MAC, VLAN</span></div>
-      <div class="cell tcp-cell" style="grid-row:span 2;border-bottom:none;display:flex;flex-direction:column;justify-content:center">
+      <div class="cell osi-cell">2 · Liaison<span class="pdu-mini">Ethernet, MAC, VLAN</span></div>
+      <div class="cell tcp-cell rows-2 last">
         <div><b>Accès réseau</b></div><span class="pdu-mini">Fusionne liaison + physique</span>
       </div>
-      <div class="cell osi-cell" style="border-bottom:none;border-top:1px solid var(--line)">1 · Physique<span class="pdu-mini">câbles, signaux, RJ45</span></div>
+      <div class="cell osi-cell last">1 · Physique<span class="pdu-mini">câbles, signaux, RJ45</span></div>
     </div>
   </div>
 </section>
@@ -320,10 +354,45 @@
 <footer>
   <div class="wrap">
     anotherj4ck · fiche réseau OSI / TCP/IP — fichier HTML autonome. <a href="#osi">↑ recommencer</a>
+    <p class="lic">Code sous licence <a href="https://github.com/anotherj4ck/osi-tcpip/blob/main/LICENSE">MIT</a> · contenu pédagogique sous licence <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr">CC BY-SA 4.0</a>.</p>
+
+    <details class="legal">
+      <summary>Mentions légales &amp; licence</summary>
+      <div class="legal-body">
+        <h3>Éditeur</h3>
+        <p>Site personnel non professionnel édité sous le pseudonyme anotherj4ck, conformément à l'<span class="nowrap">article 1-1, II</span> de la loi n° 2004-575 du 21 juin 2004 (LCEN). Les données d'identification de l'éditeur ont été communiquées à l'hébergeur.</p>
+
+        <h3>Contact</h3>
+        <p>Via les <a href="https://github.com/anotherj4ck/osi-tcpip/issues">Issues du dépôt GitHub</a>.</p>
+
+        <h3>Hébergeur</h3>
+        <address>GitHub, Inc. — 88 Colin P Kelly Jr St, San Francisco, CA 94107, États-Unis — <a href="https://github.com">https://github.com</a> (service GitHub Pages).</address>
+
+        <h3>Données personnelles</h3>
+        <p>Ce site ne dépose aucun cookie, n'utilise aucun outil de mesure d'audience et ne collecte aucune donnée personnelle. Comme tout hébergeur, GitHub peut enregistrer des journaux techniques (dont l'adresse IP des visiteurs) ; voir la <a href="https://docs.github.com/fr/site-policy/privacy-policies/github-general-privacy-statement">déclaration de confidentialité de GitHub</a>.</p>
+
+        <h3>Propriété intellectuelle</h3>
+        <p>Le code (HTML, CSS, JavaScript) est publié sous licence <a href="https://github.com/anotherj4ck/osi-tcpip/blob/main/LICENSE">MIT</a>. Le contenu pédagogique (textes, questions du quiz, explications) est publié sous licence <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr">Creative Commons BY-SA 4.0</a> : tu peux le réutiliser et le modifier en citant l'auteur (anotherj4ck) et en partageant tes versions sous la même licence.</p>
+
+        <h3>Marques</h3>
+        <p>Cisco, CCNA et Wireshark sont des marques de leurs détenteurs respectifs, citées à titre purement informatif.</p>
+
+        <h3>Avertissement pédagogique</h3>
+        <p>Fiche de révision personnelle, fournie sans garantie d'exactitude ; vérifiez auprès de vos supports de formation et des RFC.</p>
+      </div>
+    </details>
   </div>
 </footer>
 
 <script>
+/* SÉCURITÉ — règle à conserver :
+   innerHTML n'est utilisé qu'avec des données statiques écrites dans ce fichier
+   (LAYERS, STEPS, QUIZ…). Aucune saisie utilisateur, aucun paramètre d'URL,
+   aucune donnée externe n'y est injecté : pas de risque XSS.
+   Si un jour une donnée vient de l'extérieur, utiliser textContent ou
+   createElement, jamais innerHTML. La CSP du <head> bloque en plus tout
+   script ou ressource venant d'un autre domaine. */
+
 /* ============ DONNÉES OSI ============ */
 const LAYERS = [
   {n:7,name:"Application",en:"Application",clr:"var(--red)",pdu:"Donnée",
@@ -333,11 +402,12 @@ const LAYERS = [
   {n:6,name:"Présentation",en:"Presentation",clr:"var(--amber)",pdu:"Donnée",
    role:"Traduction, formatage et chiffrement des données.",
    what:"Met les données dans un format compréhensible par les deux machines : encodage, compression, chiffrement (TLS).",
-   ex:["TLS/SSL","ASCII/UTF-8","JPEG","compression"]},
+   ex:["TLS/SSL*","ASCII/UTF-8","JPEG","compression"],
+   hint:"* TLS est souvent rangé en couche 6 pour l'exercice ; en réalité il s'intercale entre TCP et l'application."},
   {n:5,name:"Session",en:"Session",clr:"#d9c44a",pdu:"Donnée",
    role:"Ouvre, maintient et ferme les dialogues entre machines.",
    what:"Gère la session de communication : établissement, synchronisation, reprise après coupure.",
-   ex:["NetBIOS","RPC","sockets de session"]},
+   ex:["NetBIOS","RPC","SMB (négociation de session)"]},
   {n:4,name:"Transport",en:"Transport",clr:"var(--green)",pdu:"Segment (TCP) / Datagramme (UDP)",
    role:"Découpe en segments et gère la fiabilité de bout en bout.",
    what:"Identifie l'application par un numéro de port, découpe les données, et garantit (TCP) ou non (UDP) la livraison ordonnée.",
@@ -345,7 +415,8 @@ const LAYERS = [
   {n:3,name:"Réseau",en:"Network",clr:"var(--cyan)",pdu:"Paquet",
    role:"Adressage logique et routage entre réseaux.",
    what:"Attribue les adresses IP et choisit le chemin d'un réseau à l'autre. C'est ici qu'agit le routeur et ton routage inter-VLAN.",
-   ex:["IP","ICMP (ping)","routage","ARP*"]},
+   ex:["IP","ICMP (ping)","routage","ARP*"],
+   hint:"* ARP fait le pont entre IP (niv.3) et MAC (niv.2) — souvent classé à cheval."},
   {n:2,name:"Liaison",en:"Data Link",clr:"var(--violet)",pdu:"Trame",
    role:"Communication au sein d'un même réseau local, via adresses MAC.",
    what:"Encadre les données en trames, gère l'adressage physique (MAC) et la commutation. Domaine du switch, des VLAN et du trunk.",
@@ -360,17 +431,22 @@ const LAYERS = [
 const stack = document.getElementById('stack');
 const detail = document.getElementById('detail');
 LAYERS.forEach(L=>{
-  const d=document.createElement('div');
-  d.className='layer';d.style.setProperty('--clr',L.clr);d.dataset.n=L.n;
+  const d=document.createElement('button');
+  d.type='button';d.className='layer';d.style.setProperty('--clr',L.clr);d.dataset.n=L.n;
+  d.setAttribute('aria-pressed','false');d.setAttribute('aria-controls','detail');
   d.innerHTML=`<span class="ln">${L.n}</span>
-    <div class="body"><div class="name">${L.name}</div><div class="en">${L.en} layer</div></div>
-    <span class="dot"></span>`;
+    <span class="body"><span class="name">${L.name}</span><span class="en">${L.en} layer</span></span>
+    <span class="dot" aria-hidden="true"></span>`;
   d.addEventListener('click',()=>selectLayer(L.n));
   stack.appendChild(d);
 });
 function selectLayer(n){
   const L=LAYERS.find(x=>x.n===n);
-  document.querySelectorAll('.layer').forEach(el=>el.classList.toggle('active',+el.dataset.n===n));
+  document.querySelectorAll('.layer').forEach(el=>{
+    const on=+el.dataset.n===n;
+    el.classList.toggle('active',on);
+    el.setAttribute('aria-pressed',on);
+  });
   detail.style.setProperty('--dc',L.clr);
   detail.innerHTML=`
     <div class="tag">Couche ${L.n} · ${L.en}</div>
@@ -381,13 +457,14 @@ function selectLayer(n){
       <dt>PDU</dt><dd><span class="pdu">${L.pdu}</span></dd>
       <dt>Exemples</dt><dd><div class="pills">${L.ex.map(e=>`<span class="pill">${e}</span>`).join('')}</div></dd>
     </dl>
-    ${n===3?'<p class="hint">* ARP fait le pont entre IP (niv.3) et MAC (niv.2) — souvent classé à cheval.</p>':''}`;
+    ${L.hint?`<p class="hint">${L.hint}</p>`:''}`;
 }
 
 /* ============ ENCAPSULATION ============ */
 const STEPS=[
   {layer:7,segs:['data'],note:"Couche 7 — les données applicatives sont créées (ex : une requête HTTP)."},
-  {layer:6,segs:['data'],note:"Couches 6 & 5 — formatage, chiffrement éventuel, gestion de session."},
+  {layer:6,segs:['data'],note:"Couche 6 — formatage, encodage, chiffrement éventuel (ex : TLS)."},
+  {layer:5,segs:['data'],note:"Couche 5 — la session est ouverte/maintenue ; pas d'en-tête visible dans la pile TCP/IP."},
   {layer:4,segs:['h4','data'],note:"Couche 4 — TCP ajoute son en-tête (ports, séquence) → on obtient un Segment."},
   {layer:3,segs:['h3','h4','data'],note:"Couche 3 — IP ajoute son en-tête (adresses source/destination) → un Paquet."},
   {layer:2,segs:['h2','h3','h4','data','t2'],note:"Couche 2 — Ethernet ajoute en-tête MAC + un suffixe (FCS) → une Trame."},
@@ -405,6 +482,10 @@ LAYERS.forEach(L=>{
     <div class="packet" id="pk${L.n}"></div>`;
   estage.appendChild(row);
 });
+const STEP_MS=1100;              // délai entre deux couches
+let timers=[],frames=[],running=false;
+const btnPlay=document.getElementById('play');
+const btnReverse=document.getElementById('reverse');
 function buildPacket(layer,segs){
   const pk=document.getElementById('pk'+layer);
   pk.innerHTML='';
@@ -413,50 +494,55 @@ function buildPacket(layer,segs){
     el.className='seg '+s;el.textContent=SEGLABEL[s];
     pk.appendChild(el);
   });
-  requestAnimationFrame(()=>pk.querySelectorAll('.seg').forEach((e,i)=>setTimeout(()=>e.classList.add('show'),i*60)));
+  // chaque setTimeout est suivi dans `timers` pour que Reset puisse tout annuler
+  frames.push(requestAnimationFrame(()=>pk.querySelectorAll('.seg').forEach((e,i)=>
+    timers.push(setTimeout(()=>e.classList.add('show'),i*60)))));
 }
-let timers=[];
+// aria-disabled plutôt que disabled : le bouton garde le focus clavier
+function setRunning(on){
+  running=on;
+  [btnPlay,btnReverse].forEach(b=>b.setAttribute('aria-disabled',on));
+}
 function clearAll(){
   timers.forEach(clearTimeout);timers=[];
+  frames.forEach(cancelAnimationFrame);frames=[];
   LAYERS.forEach(L=>document.getElementById('pk'+L.n).innerHTML='');
   document.querySelectorAll('.erow').forEach(r=>r.style.opacity='.32');
 }
 function reset(){
-  clearAll();
+  clearAll();setRunning(false);
   enote.textContent="Données applicatives prêtes à descendre la pile.";
   dirlabel.textContent="Machine A → réseau";
 }
-function runDown(){
-  clearAll();dirlabel.textContent="Machine A → réseau (encapsulation)";
-  STEPS.forEach((st,i)=>{
+function animate(steps,label,noteOf){
+  if(running)return;
+  clearAll();setRunning(true);dirlabel.textContent=label;
+  steps.forEach((st,i)=>{
     timers.push(setTimeout(()=>{
       const row=document.querySelector(`.erow[data-layer="${st.layer}"]`);
       row.style.opacity='1';
       buildPacket(st.layer,st.segs);
-      enote.textContent=st.note;
-    },i*1100));
+      enote.textContent=noteOf(st);
+    },i*STEP_MS));
   });
+  // déverrouille une fois la dernière couche affichée
+  timers.push(setTimeout(()=>setRunning(false),(steps.length-1)*STEP_MS+400));
+}
+const UP_NOTES={1:"Couche 1 — les bits arrivent et sont reconstitués en trame.",
+  2:"Couche 2 — Ethernet lit l'adresse MAC puis retire son en-tête.",
+  3:"Couche 3 — IP vérifie l'adresse destination puis retire son en-tête.",
+  4:"Couche 4 — TCP réordonne les segments puis retire son en-tête.",
+  5:"Couche 5 — la session est reconnue et suivie ; aucun en-tête à retirer.",
+  6:"Couche 6 — déchiffrement, décodage, remise en forme.",
+  7:"Couche 7 — l'application reçoit la donnée d'origine. ✓"};
+function runDown(){
+  animate(STEPS,"Machine A → réseau (encapsulation)",st=>st.note);
 }
 function runUp(){
-  clearAll();dirlabel.textContent="Réseau → Machine B (désencapsulation)";
-  const up=[...STEPS].reverse();
-  up.forEach((st,i)=>{
-    timers.push(setTimeout(()=>{
-      const row=document.querySelector(`.erow[data-layer="${st.layer}"]`);
-      row.style.opacity='1';
-      buildPacket(st.layer,st.segs);
-      const labels={1:"Couche 1 — les bits arrivent et sont reconstitués en trame.",
-        2:"Couche 2 — Ethernet lit l'adresse MAC puis retire son en-tête.",
-        3:"Couche 3 — IP vérifie l'adresse destination puis retire son en-tête.",
-        4:"Couche 4 — TCP réordonne les segments puis retire son en-tête.",
-        6:"Couches 5 & 6 — déchiffrement, remise en forme.",
-        7:"Couche 7 — l'application reçoit la donnée d'origine. ✓"};
-      enote.textContent=labels[st.layer];
-    },i*1100));
-  });
+  animate([...STEPS].reverse(),"Réseau → Machine B (désencapsulation)",st=>UP_NOTES[st.layer]);
 }
-document.getElementById('play').onclick=runDown;
-document.getElementById('reverse').onclick=runUp;
+btnPlay.onclick=runDown;
+btnReverse.onclick=runUp;
 document.getElementById('reset').onclick=reset;
 reset();
 
@@ -464,7 +550,7 @@ reset();
 const QUIZ=[
   {q:"À quelle couche OSI travaille un switch (commutation, adresses MAC, VLAN) ?",
    opts:["Couche 1 — Physique","Couche 2 — Liaison","Couche 3 — Réseau","Couche 4 — Transport"],
-   correct:1,expl:"Le switch lit les adresses MAC et gère les VLAN → couche 2 (Liaison). Ton Cisco 2950 vit ici."},
+   correct:1,expl:"Le switch lit les adresses MAC et gère les VLAN → couche 2 (Liaison). Un switch Cisco de lab vit ici."},
   {q:"Quelle couche s'occupe du routage et des adresses IP ?",
    opts:["Couche 2 — Liaison","Couche 3 — Réseau","Couche 5 — Session","Couche 7 — Application"],
    correct:1,expl:"L'adressage logique (IP) et le choix du chemin entre réseaux = couche 3. C'est là qu'agit ton routage inter-VLAN."},
@@ -479,7 +565,7 @@ const QUIZ=[
    correct:1,expl:"À l'émission on descend (7 → 1) : chaque couche encapsule. À la réception on remonte (1 → 7) : chaque couche désencapsule."},
   {q:"Combien de couches compte le modèle TCP/IP ?",
    opts:["3","4","5","7"],
-   correct:1,expl:"TCP/IP a 4 couches : Accès réseau, Internet, Transport, Application. OSI en a 7 — c'est le modèle de référence théorique."},
+   correct:1,expl:"TCP/IP a 4 couches : Accès réseau, Internet, Transport, Application (modèle de la RFC 1122). Certains cours présentent une version à 5 couches qui sépare Physique et Liaison. OSI en a 7 — c'est le modèle de référence théorique."},
   {q:"La couche Application de TCP/IP regroupe quelles couches OSI ?",
    opts:["Physique + Liaison","Réseau + Transport","Application + Présentation + Session","Transport seul"],
    correct:2,expl:"La couche Application TCP/IP fusionne les 3 couches hautes d'OSI : Application (7), Présentation (6) et Session (5)."},
@@ -499,7 +585,7 @@ function renderQ(){
     <div class="qtext">${Q.q}</div>
     <div class="qopts">${Q.opts.map((o,i)=>
       `<button class="qopt" data-i="${i}"><span class="k">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}</div>
-    <div class="qexpl" id="qexpl"></div>
+    <div class="qexpl" id="qexpl" aria-live="polite"></div>
     <div class="qnav"><button class="btn primary" id="qnext" style="display:none">Suivant →</button></div>`;
   quizEl.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>pick(+b.dataset.i));
   document.getElementById('qnext').onclick=next;
