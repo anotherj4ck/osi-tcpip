@@ -213,6 +213,17 @@
 
   footer{padding:40px 0 64px;color:var(--ink-faint);font-family:var(--mono);font-size:12px}
   footer a{color:var(--cyan);text-decoration:none}
+  footer a:hover,footer a:focus-visible{text-decoration:underline}
+  footer .lic{margin-top:8px}
+  .legal{margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
+  .legal summary{cursor:pointer;color:var(--ink-dim);width:max-content;max-width:100%}
+  .legal summary:hover{color:var(--cyan)}
+  .legal .legal-body{margin-top:14px;font-family:var(--sans);font-size:13px;line-height:1.6;
+    color:var(--ink-dim);max-width:72ch}
+  .legal h3{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-faint);margin:16px 0 4px}
+  .legal h3:first-child{margin-top:0}
+  .legal address{font-style:normal}
 
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -342,6 +353,33 @@
 <footer>
   <div class="wrap">
     anotherj4ck · fiche réseau OSI / TCP/IP — fichier HTML autonome. <a href="#osi">↑ recommencer</a>
+    <p class="lic">Code sous licence <a href="https://github.com/anotherj4ck/osi-tcpip/blob/main/LICENSE">MIT</a> · contenu pédagogique sous licence <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr">CC BY-SA 4.0</a>.</p>
+
+    <details class="legal">
+      <summary>Mentions légales &amp; licence</summary>
+      <div class="legal-body">
+        <h3>Éditeur</h3>
+        <p>Site personnel non professionnel édité sous le pseudonyme anotherj4ck, conformément à l'article 1-1, II de la loi n° 2004-575 du 21 juin 2004 (LCEN). Les données d'identification de l'éditeur ont été communiquées à l'hébergeur.</p>
+
+        <h3>Contact</h3>
+        <p>Via les <a href="https://github.com/anotherj4ck/osi-tcpip/issues">Issues du dépôt GitHub</a>.</p>
+
+        <h3>Hébergeur</h3>
+        <address>GitHub, Inc. — 88 Colin P Kelly Jr St, San Francisco, CA 94107, États-Unis — <a href="https://github.com">https://github.com</a> (service GitHub Pages).</address>
+
+        <h3>Données personnelles</h3>
+        <p>Ce site ne dépose aucun cookie, n'utilise aucun outil de mesure d'audience et ne collecte aucune donnée personnelle. Comme tout hébergeur, GitHub peut enregistrer des journaux techniques (dont l'adresse IP des visiteurs) ; voir la <a href="https://docs.github.com/fr/site-policy/privacy-policies/github-general-privacy-statement">déclaration de confidentialité de GitHub</a>.</p>
+
+        <h3>Propriété intellectuelle</h3>
+        <p>Le code (HTML, CSS, JavaScript) est publié sous licence <a href="https://github.com/anotherj4ck/osi-tcpip/blob/main/LICENSE">MIT</a>. Le contenu pédagogique (textes, questions du quiz, explications) est publié sous licence <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.fr">Creative Commons BY-SA 4.0</a> : tu peux le réutiliser et le modifier en citant l'auteur (anotherj4ck) et en partageant tes versions sous la même licence.</p>
+
+        <h3>Marques</h3>
+        <p>Cisco, CCNA et Wireshark sont des marques de leurs détenteurs respectifs, citées à titre purement informatif.</p>
+
+        <h3>Avertissement pédagogique</h3>
+        <p>Fiche de révision personnelle, fournie sans garantie d'exactitude ; vérifiez auprès de vos supports de formation et des RFC.</p>
+      </div>
+    </details>
   </div>
 </footer>
 
