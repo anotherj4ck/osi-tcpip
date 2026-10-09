@@ -226,7 +226,7 @@
       <div class="detail" id="detail">
         <div class="tag">Sélection</div>
         <h3>Choisis une couche</h3>
-        <p class="role">Le détail s'affiche ici. Astuce mnémotechnique (haut → bas) : <b>« Tout Plombier Surveille Tous Réseaux La Présentation Apprend »</b> ... ou en anglais : <i>All People Seem To Need Data Processing</i>.</p>
+        <p class="role">Le détail s'affiche ici. Astuce mnémotechnique (haut → bas, 7 → 1) : <b>« Après Plusieurs Semaines, Tout Respire La Paix »</b> — Application, Présentation, Session, Transport, Réseau, Liaison, Physique. En anglais : <i>All People Seem To Need Data Processing</i>.</p>
       </div>
     </div>
   </div>
@@ -387,7 +387,8 @@ function selectLayer(n){
 /* ============ ENCAPSULATION ============ */
 const STEPS=[
   {layer:7,segs:['data'],note:"Couche 7 — les données applicatives sont créées (ex : une requête HTTP)."},
-  {layer:6,segs:['data'],note:"Couches 6 & 5 — formatage, chiffrement éventuel, gestion de session."},
+  {layer:6,segs:['data'],note:"Couche 6 — formatage, encodage, chiffrement éventuel (ex : TLS)."},
+  {layer:5,segs:['data'],note:"Couche 5 — la session est ouverte/maintenue ; pas d'en-tête visible dans la pile TCP/IP."},
   {layer:4,segs:['h4','data'],note:"Couche 4 — TCP ajoute son en-tête (ports, séquence) → on obtient un Segment."},
   {layer:3,segs:['h3','h4','data'],note:"Couche 3 — IP ajoute son en-tête (adresses source/destination) → un Paquet."},
   {layer:2,segs:['h2','h3','h4','data','t2'],note:"Couche 2 — Ethernet ajoute en-tête MAC + un suffixe (FCS) → une Trame."},
@@ -449,7 +450,8 @@ function runUp(){
         2:"Couche 2 — Ethernet lit l'adresse MAC puis retire son en-tête.",
         3:"Couche 3 — IP vérifie l'adresse destination puis retire son en-tête.",
         4:"Couche 4 — TCP réordonne les segments puis retire son en-tête.",
-        6:"Couches 5 & 6 — déchiffrement, remise en forme.",
+        5:"Couche 5 — la session est reconnue et suivie ; aucun en-tête à retirer.",
+        6:"Couche 6 — déchiffrement, décodage, remise en forme.",
         7:"Couche 7 — l'application reçoit la donnée d'origine. ✓"};
       enote.textContent=labels[st.layer];
     },i*1100));
