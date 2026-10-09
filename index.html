@@ -76,13 +76,16 @@
     background:var(--panel);border-radius:8px;padding:13px 16px;
     display:flex;align-items:center;gap:14px;
     transition:transform .15s ease,border-color .15s,background .15s;
+    /* reset du <button> : même rendu que l'ancien <div> */
+    width:100%;font:inherit;color:inherit;text-align:left;
   }
   .layer:hover{transform:translateX(5px);border-color:var(--clr)}
   .layer.active{background:var(--panel-2);border-color:var(--clr);transform:translateX(5px)}
+  .layer:focus-visible{outline:2px solid var(--clr);outline-offset:2px}
   .layer .ln{font-family:var(--mono);font-size:13px;color:var(--clr);font-weight:600;width:18px}
   .layer .body{flex:1}
-  .layer .name{font-weight:600;font-size:15px}
-  .layer .en{font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.04em}
+  .layer .name{display:block;font-weight:600;font-size:15px}
+  .layer .en{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.04em}
   .layer .dot{width:9px;height:9px;border-radius:50%;background:var(--clr);box-shadow:0 0 10px var(--clr)}
 
   .detail{
@@ -222,8 +225,8 @@
     </div>
 
     <div class="osi-grid">
-      <div class="stack" id="stack"></div>
-      <div class="detail" id="detail">
+      <div class="stack" id="stack" role="group" aria-label="Couches du modèle OSI"></div>
+      <div class="detail" id="detail" aria-live="polite">
         <div class="tag">Sélection</div>
         <h3>Choisis une couche</h3>
         <p class="role">Le détail s'affiche ici. Astuce mnémotechnique (haut → bas, 7 → 1) : <b>« Après Plusieurs Semaines, Tout Respire La Paix »</b> — Application, Présentation, Session, Transport, Réseau, Liaison, Physique. En anglais : <i>All People Seem To Need Data Processing</i>.</p>
@@ -251,7 +254,7 @@
         <span class="dir-label" id="dirlabel">Machine A → réseau</span>
       </div>
       <div class="encap-stage" id="estage"></div>
-      <div class="estep-note" id="enote">Données applicatives prêtes à descendre la pile.</div>
+      <div class="estep-note" id="enote" aria-live="polite">Données applicatives prêtes à descendre la pile.</div>
     </div>
   </div>
 </section>
@@ -362,17 +365,22 @@ const LAYERS = [
 const stack = document.getElementById('stack');
 const detail = document.getElementById('detail');
 LAYERS.forEach(L=>{
-  const d=document.createElement('div');
-  d.className='layer';d.style.setProperty('--clr',L.clr);d.dataset.n=L.n;
+  const d=document.createElement('button');
+  d.type='button';d.className='layer';d.style.setProperty('--clr',L.clr);d.dataset.n=L.n;
+  d.setAttribute('aria-pressed','false');d.setAttribute('aria-controls','detail');
   d.innerHTML=`<span class="ln">${L.n}</span>
-    <div class="body"><div class="name">${L.name}</div><div class="en">${L.en} layer</div></div>
-    <span class="dot"></span>`;
+    <span class="body"><span class="name">${L.name}</span><span class="en">${L.en} layer</span></span>
+    <span class="dot" aria-hidden="true"></span>`;
   d.addEventListener('click',()=>selectLayer(L.n));
   stack.appendChild(d);
 });
 function selectLayer(n){
   const L=LAYERS.find(x=>x.n===n);
-  document.querySelectorAll('.layer').forEach(el=>el.classList.toggle('active',+el.dataset.n===n));
+  document.querySelectorAll('.layer').forEach(el=>{
+    const on=+el.dataset.n===n;
+    el.classList.toggle('active',on);
+    el.setAttribute('aria-pressed',on);
+  });
   detail.style.setProperty('--dc',L.clr);
   detail.innerHTML=`
     <div class="tag">Couche ${L.n} · ${L.en}</div>
@@ -503,7 +511,7 @@ function renderQ(){
     <div class="qtext">${Q.q}</div>
     <div class="qopts">${Q.opts.map((o,i)=>
       `<button class="qopt" data-i="${i}"><span class="k">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}</div>
-    <div class="qexpl" id="qexpl"></div>
+    <div class="qexpl" id="qexpl" aria-live="polite"></div>
     <div class="qnav"><button class="btn primary" id="qnext" style="display:none">Suivant →</button></div>`;
   quizEl.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>pick(+b.dataset.i));
   document.getElementById('qnext').onclick=next;
