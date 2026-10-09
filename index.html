@@ -203,7 +203,7 @@
 
 <header>
   <div class="wrap">
-    <div class="eyebrow">Réseau · TSSR · fondamentaux</div>
+    <div class="eyebrow">Réseau · TAI / TSSR · fondamentaux</div>
     <h1>Les couches réseau,<br><span class="alt">décortiquées.</span></h1>
     <p class="lede">Un paquet qui voyage d'une machine à l'autre traverse une pile de couches, chacune avec son rôle. On commence par le modèle de référence — OSI, 7 couches — puis on bascule vers ce qui fait réellement tourner Internet : TCP/IP.</p>
     <div class="prompt"><span class="c">ajack@terra</span>:~$ traceroute --explain osi tcp-ip<span class="blink">▍</span></div>
@@ -268,8 +268,8 @@
     </div>
 
     <div class="transition">
-      <p>Le modèle OSI est une <strong>référence théorique</strong>. Il n'a jamais été déployé tel quel : aucun réseau réel ne tourne « en OSI ». Ce qui fait fonctionner Internet, tes VM en <span class="key">172.16.x.0/24</span>, ton routage inter-VLAN et chaque <span class="key">ping</span> que tu lances, c'est la pile <strong>TCP/IP</strong> — un modèle plus ancien, plus pragmatique, en 4 couches.</p>
-      <p>Mais attention au raccourci « OSI est dépassé » : c'est faux. OSI reste la <strong>grille de lecture commune</strong> de tout le métier. Quand un collègue dit « c'est un souci de niveau 2 », il parle d'un problème de commutation/MAC/VLAN (ton Cisco 2950). « Niveau 3 », c'est le routage et l'IP. « Niveau 7 », l'applicatif. Wireshark, les certifs CCNA, le dépannage : tout le monde raisonne en couches OSI.</p>
+      <p>Le modèle OSI est une <strong>référence théorique</strong>. Il n'a jamais été déployé tel quel : aucun réseau réel ne tourne « en OSI ». Ce qui fait fonctionner Internet, des VM sur un réseau privé (RFC 1918, ex. <span class="key">172.16.0.0/12</span>), le routage inter-VLAN et chaque <span class="key">ping</span> que tu lances, c'est la pile <strong>TCP/IP</strong> — un modèle plus ancien, plus pragmatique, en 4 couches.</p>
+      <p>Mais attention au raccourci « OSI est dépassé » : c'est faux. OSI reste la <strong>grille de lecture commune</strong> de tout le métier. Quand un collègue dit « c'est un souci de niveau 2 », il parle d'un problème de commutation/MAC/VLAN (un switch Cisco de lab). « Niveau 3 », c'est le routage et l'IP. « Niveau 7 », l'applicatif. Wireshark, les certifs CCNA, le dépannage : tout le monde raisonne en couches OSI.</p>
       <p>En clair : on apprend <strong>OSI pour comprendre et communiquer</strong>, on déploie <strong>TCP/IP pour faire tourner le réseau</strong>. Voici comment les deux se superposent.</p>
     </div>
 
@@ -468,7 +468,7 @@ reset();
 const QUIZ=[
   {q:"À quelle couche OSI travaille un switch (commutation, adresses MAC, VLAN) ?",
    opts:["Couche 1 — Physique","Couche 2 — Liaison","Couche 3 — Réseau","Couche 4 — Transport"],
-   correct:1,expl:"Le switch lit les adresses MAC et gère les VLAN → couche 2 (Liaison). Ton Cisco 2950 vit ici."},
+   correct:1,expl:"Le switch lit les adresses MAC et gère les VLAN → couche 2 (Liaison). Un switch Cisco de lab vit ici."},
   {q:"Quelle couche s'occupe du routage et des adresses IP ?",
    opts:["Couche 2 — Liaison","Couche 3 — Réseau","Couche 5 — Session","Couche 7 — Application"],
    correct:1,expl:"L'adressage logique (IP) et le choix du chemin entre réseaux = couche 3. C'est là qu'agit ton routage inter-VLAN."},
