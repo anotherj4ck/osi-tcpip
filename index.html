@@ -333,11 +333,12 @@ const LAYERS = [
   {n:6,name:"Présentation",en:"Presentation",clr:"var(--amber)",pdu:"Donnée",
    role:"Traduction, formatage et chiffrement des données.",
    what:"Met les données dans un format compréhensible par les deux machines : encodage, compression, chiffrement (TLS).",
-   ex:["TLS/SSL","ASCII/UTF-8","JPEG","compression"]},
+   ex:["TLS/SSL*","ASCII/UTF-8","JPEG","compression"],
+   hint:"* TLS est souvent rangé en couche 6 pour l'exercice ; en réalité il s'intercale entre TCP et l'application."},
   {n:5,name:"Session",en:"Session",clr:"#d9c44a",pdu:"Donnée",
    role:"Ouvre, maintient et ferme les dialogues entre machines.",
    what:"Gère la session de communication : établissement, synchronisation, reprise après coupure.",
-   ex:["NetBIOS","RPC","sockets de session"]},
+   ex:["NetBIOS","RPC","SMB (négociation de session)"]},
   {n:4,name:"Transport",en:"Transport",clr:"var(--green)",pdu:"Segment (TCP) / Datagramme (UDP)",
    role:"Découpe en segments et gère la fiabilité de bout en bout.",
    what:"Identifie l'application par un numéro de port, découpe les données, et garantit (TCP) ou non (UDP) la livraison ordonnée.",
@@ -345,7 +346,8 @@ const LAYERS = [
   {n:3,name:"Réseau",en:"Network",clr:"var(--cyan)",pdu:"Paquet",
    role:"Adressage logique et routage entre réseaux.",
    what:"Attribue les adresses IP et choisit le chemin d'un réseau à l'autre. C'est ici qu'agit le routeur et ton routage inter-VLAN.",
-   ex:["IP","ICMP (ping)","routage","ARP*"]},
+   ex:["IP","ICMP (ping)","routage","ARP*"],
+   hint:"* ARP fait le pont entre IP (niv.3) et MAC (niv.2) — souvent classé à cheval."},
   {n:2,name:"Liaison",en:"Data Link",clr:"var(--violet)",pdu:"Trame",
    role:"Communication au sein d'un même réseau local, via adresses MAC.",
    what:"Encadre les données en trames, gère l'adressage physique (MAC) et la commutation. Domaine du switch, des VLAN et du trunk.",
@@ -381,7 +383,7 @@ function selectLayer(n){
       <dt>PDU</dt><dd><span class="pdu">${L.pdu}</span></dd>
       <dt>Exemples</dt><dd><div class="pills">${L.ex.map(e=>`<span class="pill">${e}</span>`).join('')}</div></dd>
     </dl>
-    ${n===3?'<p class="hint">* ARP fait le pont entre IP (niv.3) et MAC (niv.2) — souvent classé à cheval.</p>':''}`;
+    ${L.hint?`<p class="hint">${L.hint}</p>`:''}`;
 }
 
 /* ============ ENCAPSULATION ============ */
@@ -481,7 +483,7 @@ const QUIZ=[
    correct:1,expl:"À l'émission on descend (7 → 1) : chaque couche encapsule. À la réception on remonte (1 → 7) : chaque couche désencapsule."},
   {q:"Combien de couches compte le modèle TCP/IP ?",
    opts:["3","4","5","7"],
-   correct:1,expl:"TCP/IP a 4 couches : Accès réseau, Internet, Transport, Application. OSI en a 7 — c'est le modèle de référence théorique."},
+   correct:1,expl:"TCP/IP a 4 couches : Accès réseau, Internet, Transport, Application (modèle de la RFC 1122). Certains cours présentent une version à 5 couches qui sépare Physique et Liaison. OSI en a 7 — c'est le modèle de référence théorique."},
   {q:"La couche Application de TCP/IP regroupe quelles couches OSI ?",
    opts:["Physique + Liaison","Réseau + Transport","Application + Présentation + Session","Transport seul"],
    correct:2,expl:"La couche Application TCP/IP fusionne les 3 couches hautes d'OSI : Application (7), Présentation (6) et Session (5)."},
