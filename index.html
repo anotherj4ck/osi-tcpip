@@ -127,7 +127,7 @@
   .erow{display:flex;align-items:center;gap:14px}
   .erow .elabel{font-family:var(--mono);font-size:12px;color:var(--ink-faint);width:120px;text-align:right;flex-shrink:0}
   .erow .elabel b{color:var(--ink-dim);display:block;font-size:11px;font-weight:600}
-  .packet{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;
+  .packet{display:flex;flex-wrap:wrap;min-width:0;align-items:stretch;border-radius:6px;overflow:hidden;
     font-family:var(--mono);font-size:11px;min-height:34px;transition:opacity .4s,transform .4s}
   .seg{display:flex;align-items:center;justify-content:center;padding:0 10px;white-space:nowrap;
     color:#0a0f13;font-weight:600;opacity:0;transform:scale(.9);transition:opacity .35s,transform .35s}
@@ -143,6 +143,9 @@
     .erow .elabel{width:64px;font-size:10px}
     .estep-note{padding-left:78px}
   }
+  @media(max-width:400px){
+    .seg{padding:0 5px}
+  }
 
   /* ---------- transition block ---------- */
   .transition{background:linear-gradient(180deg,var(--panel),var(--panel-2));
@@ -155,15 +158,17 @@
 
   /* ---------- mapping table ---------- */
   .map{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);
-    border-radius:10px;overflow:hidden;margin-top:8px}
+    border-radius:10px;overflow:hidden;margin-top:24px}
   .map .col-head{padding:14px 18px;font-weight:700;font-size:15px;background:var(--panel-2);
     border-bottom:1px solid var(--line)}
   .map .col-head.osi{color:var(--cyan)} .map .col-head.tcp{color:var(--amber)}
   .map .cell{padding:13px 18px;border-bottom:1px solid var(--line);font-size:14px}
   .map .cell .pdu-mini{font-family:var(--mono);font-size:11px;color:var(--ink-faint);display:block}
   .map .osi-cell{border-right:1px solid var(--line);background:var(--panel)}
-  .map .tcp-cell{background:rgba(242,164,58,.04)}
-  .map .span2{display:flex;align-items:center;color:var(--ink-dim);font-style:italic;font-size:13px}
+  .map .tcp-cell{background:rgba(242,164,58,.04);display:flex;flex-direction:column;justify-content:center}
+  .map .rows-2{grid-row:span 2}
+  .map .rows-3{grid-row:span 3}
+  .map .last{border-bottom:none}
 
   /* ---------- quiz ---------- */
   .quiz{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px}
@@ -276,32 +281,32 @@
       <p>En clair : on apprend <strong>OSI pour comprendre et communiquer</strong>, on déploie <strong>TCP/IP pour faire tourner le réseau</strong>. Voici comment les deux se superposent.</p>
     </div>
 
-    <div class="map" style="margin-top:24px">
+    <div class="map">
       <div class="col-head osi">Modèle OSI — 7 couches</div>
       <div class="col-head tcp">Modèle TCP/IP — 4 couches</div>
 
       <div class="cell osi-cell">7 · Application<span class="pdu-mini">HTTP, DNS, SSH</span></div>
-      <div class="cell tcp-cell" style="grid-row:span 3;display:flex;flex-direction:column;justify-content:center">
+      <div class="cell tcp-cell rows-3">
         <div><b>Application</b></div><span class="pdu-mini">Regroupe les 3 couches hautes d'OSI</span>
       </div>
       <div class="cell osi-cell">6 · Présentation<span class="pdu-mini">TLS, chiffrement, formats</span></div>
       <div class="cell osi-cell">5 · Session<span class="pdu-mini">ouverture/maintien de session</span></div>
 
       <div class="cell osi-cell">4 · Transport<span class="pdu-mini">TCP, UDP — ports</span></div>
-      <div class="cell tcp-cell" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="cell tcp-cell">
         <div><b>Transport</b></div><span class="pdu-mini">TCP / UDP (identique)</span>
       </div>
 
       <div class="cell osi-cell">3 · Réseau<span class="pdu-mini">IP, routage, ICMP</span></div>
-      <div class="cell tcp-cell" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="cell tcp-cell">
         <div><b>Internet</b></div><span class="pdu-mini">IP, routage</span>
       </div>
 
-      <div class="cell osi-cell" style="border-bottom:none">2 · Liaison<span class="pdu-mini">Ethernet, MAC, VLAN</span></div>
-      <div class="cell tcp-cell" style="grid-row:span 2;border-bottom:none;display:flex;flex-direction:column;justify-content:center">
+      <div class="cell osi-cell">2 · Liaison<span class="pdu-mini">Ethernet, MAC, VLAN</span></div>
+      <div class="cell tcp-cell rows-2 last">
         <div><b>Accès réseau</b></div><span class="pdu-mini">Fusionne liaison + physique</span>
       </div>
-      <div class="cell osi-cell" style="border-bottom:none;border-top:1px solid var(--line)">1 · Physique<span class="pdu-mini">câbles, signaux, RJ45</span></div>
+      <div class="cell osi-cell last">1 · Physique<span class="pdu-mini">câbles, signaux, RJ45</span></div>
     </div>
   </div>
 </section>
